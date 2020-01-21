@@ -1,0 +1,991 @@
+﻿<![CDATA[
+<?xml version="1.0" encoding="UTF-8" ?> 
+<script type="text/JavaScript">
+	//ポップアップ呼び出し用Wait画像参照変数
+	var Waiter;
+	//ポップアップコメントオブジェクト参照変数
+	var PopUpField;
+	//ポップアップ表示幅
+	var PopUpWidth = 766;
+	//ポップアップ表示高さ
+	var PopUpHeight = 510;
+	//表示・消去処理速度
+	var ViewSpeed = 20;
+	//待ち受け画像参照変数
+	var ImgWait;
+	//キャラクタ画像参照変数
+	var Img;
+	//しゃべるキャラクタ画像参照変数
+	var ImgTalk;
+	//しゃべるえがおキャラクタ画像参照変数
+	var ImgTalkS;
+	
+	//コメントフィールド参照変数
+	var CommentField;
+	//コメント表示スクロール位置保持変数
+	var CommentScrollTop =10;
+	//質問フィールド参照変数
+	var QuestionField;
+	//送信ボタン参照変数
+	var SubmitBtn;
+	//Closeボタン参照変数
+	var CloseBtn;
+	//ページロード時の処理
+	window.onload = function(){
+	//---------待ち受け画像エリア------
+		//画像の表示位置等のパラメータ
+		ImgWait = document.createElement('img');
+		ImgWait.src = "https://1.bp.blogspot.com/-nz8M4ibDAss/XfwisPd6VPI/AAAAAAAAAEk/pP78Xlw0epgWiBEbB2mBSEHI0vWwTTAtgCEwYBhgL/s320/%25E5%2585%2588%25E8%25BC%25A9%25E3%2580%2580%25E7%259E%25AC%25E3%2581%258D.gif";
+		ImgWait.style="position:absolute;"
+		ImgWait.width = 40;
+		ImgWait.height = 40;
+		ImgWait.style.top = -0;
+		ImgWait.style.left = -0;
+	
+	//---------待ち受け画像エリア------
+		//待ち受け画像の生成と表示
+		Waiter = new WaitImg();
+		Waiter.View();
+		//ポップアップフィールドを生成する
+		PopUpField =  new PopUpComment();
+	//---------キャラクタ画像エリア------
+		//画像の表示位置等のパラメータ
+		ImgNormal = document.createElement('img');
+		ImgNormal.id = "ImgNormalID";
+		ImgNormal.src = "https://1.bp.blogspot.com/-eBRhYcSNF2I/XfrI7yV7gAI/AAAAAAAAACw/5Uy_rcHbtVE3E-Ve5--JDylb2nQ8YTzlQCNcBGAsYHQ/s1600/mean_wait.gif";
+		ImgNormal.style="position:absolute;"
+		ImgNormal.width = 300;
+		ImgNormal.style.top = 30;
+		ImgNormal.style.left = 50;
+	//---------キャラクタ画像エリア------
+	//---------しゃべるキャラクタ画像エリア------
+		//画像の表示位置等のパラメータ
+		ImgTalk = document.createElement('img');
+		ImgTalk.src = "https://1.bp.blogspot.com/-9aZl5nRrGKs/XfrI83kD1HI/AAAAAAAAAC0/-nUKpBsKF5kyxwXhYuGvCWWC00S8btWygCNcBGAsYHQ/s1600/mean_talk.gif";
+		ImgTalk.style="position:absolute;"
+		ImgTalk.width = 300;
+		ImgTalk.style.top = 30;
+		ImgTalk.style.left = 50;
+	//---------しゃべるキャラクタ画像エリア------
+	//---------えがおキャラクタ画像エリア------
+		//画像の表示位置等のパラメータ
+		ImgTalkS = document.createElement('img');
+		ImgTalkS.src = "https://1.bp.blogspot.com/-k6hXtBeh4vY/XfrI9yPsJZI/AAAAAAAAAC4/XAru0EBpvpA8WMBe5L5Nt9QGelJUgcIqQCNcBGAsYHQ/s1600/mean_doya.gif";
+		ImgTalkS.style="position:absolute;"
+		ImgTalkS.width = 300;
+		ImgTalkS.style.top = 30;
+		ImgTalkS.style.left = 50;
+	//---------えがおキャラクタ画像エリア------
+
+	//---------ドン引きキャラクタ画像エリア------
+			//画像の表示位置等のパラメータ
+		ImgTalkD = document.createElement('img');
+		ImgTalkD.src = "https://1.bp.blogspot.com/-_r-TrZEU5hg/XfrI-o4WVUI/AAAAAAAAAC8/aQ_Oq8Kk99oqC052kbzOgR2ik6VqRRrHACNcBGAsYHQ/s1600/mean_don.gif";
+		ImgTalkD.style="position:absolute;"
+		ImgTalkD.width = 300;
+		ImgTalkD.style.top = 30;
+		ImgTalkD.style.left = 50;
+	//---------ドン引きキャラクタ画像エリア------
+	
+	//---------コメントスクロールエリア------
+		//コメント表示部のiframeを作成する
+		CommentField = document.createElement("iframe");
+		//iframeをポップアップコメントに追加
+		PopUpField.Div.appendChild(CommentField);
+		//iframeの見栄えをセット
+		CommentField.setAttribute("frameBorder", "0");
+		CommentField.setAttribute("scrolling", "yes");
+		// iframeの大きさや表示位置をセット
+		CommentField.style.position = "absolute";
+		CommentField.style.top = 70;
+		CommentField.style.left = 330;
+		CommentField.style.width = 420;
+		CommentField.style.height = 400;
+	//---------コメントスクロールエリア------
+	//---------質問テキストボックス----
+		//テキストエリアの生成
+		QuestionField = document.createElement('textarea');
+		//スクロールバーを非表示
+		QuestionField.style.overflow = "hidden";
+		QuestionField.style.fontSize = "24";
+		QuestionField.style.color = "black";
+		QuestionField.style.borderRadius = 5;
+		QuestionField.style.position = "absolute";
+		QuestionField.style.top = 483;
+		QuestionField.style.left = 0;
+		QuestionField.style.width = 680;
+		QuestionField.style.height = 45;
+	//---------質問テキストボックス----
+	//---------送信ボタン--------------
+		//送信ボタンの生成
+		SubmitBtn = document.createElement('button');
+		SubmitBtn.textContent = '▶';
+		SubmitBtn.style.fontSize = "20";
+                SubmitBtn.style.backgroundColor = "#FFFFFF";
+		SubmitBtn.style.position = "absolute";
+		SubmitBtn.style.top = 483;
+		SubmitBtn.style.left = 678;
+                SubmitBtn.style.width = 90;
+                SubmitBtn.style.height = 45;
+	        //マウスイベントハンドラの追加（Closeボタン）
+		SubmitBtn.addEventListener('click',SousinComent , false);
+                     
+	//---------送信ボタン--------------
+	
+		//POPUPに初期画像を組み込む
+		PopUpField.Div.appendChild(ImgNormal);
+		var Question = new CommentCls(1,"こんにちは。\n何でも聞いてね。");
+        //---------PopUpを読み込む--------------
+                  ViewPopUp();
+	};
+        //スクロール時に表示位置を変更する
+	window.onscroll = function () {
+		timer = setTimeout(function () {
+			//待機画像の表示変更
+			Waiter.View();
+			//ポップアップの表示変更
+			PopUpField.View(PopUpHeight - ViewSpeed);
+		}, 100);
+	};
+	//コメントクラスの定義
+    	var CommentCls = function(Mode,Message) {
+		//テキストエリアの生成
+		Text = document.createElement('textarea');
+		Text.style.fontSize = "24";
+		Text.style.color = "black";
+		Text.style.borderRadius = 5;
+		Text.style.position = "absolute";
+		Text.style.top = CommentScrollTop;
+		Text.style.width = 250;
+　　　　　　　　　Text.style.height = 40;
+		//質問か答えかを判別して表示位置と色を変更する（0は質問、1は答え）
+		if(Mode == 0){
+			Text.style.backgroundColor = "#99FF33";
+			Text.style.left = 100;
+		}
+		else{
+			Text.style.backgroundColor = "#FFFFFF";
+			Text.style.left = 10;
+			//しゃべる画像に変更する
+			PopUpField.Div.removeChild(ImgNormal)  
+			var random = Math.floor( Math.random() * 5 );
+			if(random == 0){
+				PopUpField.Div.appendChild(ImgTalkS);	
+			}else if(random == 1){
+				PopUpField.Div.appendChild(ImgTalkD);	
+			}else{
+				PopUpField.Div.appendChild(ImgTalk);			
+			}
+			//数秒後に画像をもとに戻す
+			setTimeout(function(){
+				if(random == 0){
+					PopUpField.Div.removeChild(ImgTalkS);	
+				}else if(random == 1){
+					PopUpField.Div.removeChild(ImgTalkD);	
+				}else{
+					PopUpField.Div.removeChild(ImgTalk);			
+				}
+				PopUpField.Div.appendChild(ImgNormal);
+			},2000);
+		}
+		//表示内容の入力
+		Text.innerHTML = Message;
+		//Divにテキストエリアを組み込む
+		CommentField.contentDocument.body.appendChild(Text);
+		//テキストエリアの高さを調整
+		Text.style.height = parseInt(Text.scrollHeight) + 20;
+		//スクロール位置を変更する
+		CommentScrollTop = CommentScrollTop + parseInt(Text.style.height) + 10;
+		CommentField.contentDocument.body.scrollTop = CommentScrollTop;
+	}
+	//ポップアップクラスの定義
+    	var PopUpComment = function() {
+		//Divレイヤの定義
+		this.Div = document.createElement('div'); 
+		this.Div.style.position = "absolute";
+		this.Div.style.width = PopUpWidth;
+		this.Div.style.height = 0;
+		this.Div.style.backgroundColor = "#CCFFFF";
+		this.Div.style.border = "outset 2px #CEF9DC";
+		this.Div.style.borderRadius = "20px";
+		//最初は非表示
+		this.Div.style.visibility = "hidden";
+		//最前面に表示する
+		this.Div.style.zIndex = 1000;
+		//ページにPOPUP（Div)を組み込む
+		document.body.appendChild(this.Div);
+		//画面上への表示
+		this.View = function(vHeight){
+			//表示位置の取得
+			var viewX = document.body.clientWidth - PopUpWidth + document.body.scrollLeft;
+			var viewY = document.body.clientHeight - PopUpHeight -20 + document.body.scrollTop;
+			//表示位置の指定
+			this.Div.style.left = viewX;
+	 		this.Div.style.height = vHeight + ViewSpeed;
+			this.Div.style.top = viewY + PopUpHeight -  (vHeight + ViewSpeed);
+			if (parseInt(this.Div.style.height) < PopUpHeight){
+				setTimeout(function(){ PopUpField.View((vHeight + ViewSpeed)) },10);
+			}
+			else{
+				//質問エリアにフォーカスをセット
+				QuestionField.focus();
+			}
+		}
+		//画面からの消去
+		this.Hide= function(vHeight){
+			//表示位置の取得
+			var viewX = document.body.clientWidth - PopUpWidth - 10;
+			var viewY = document.body.clientHeight - PopUpHeight -10;
+			//表示位置の指定
+			this.Div.style.left = viewX + document.body.scrollLeft;
+	 		this.Div.style.height = vHeight - ViewSpeed;
+			this.Div.style.top = viewY + PopUpHeight -  (vHeight - ViewSpeed) + document.body.scrollTop;
+			if (parseInt(this.Div.style.height) > ViewSpeed+30){
+				setTimeout(function(){ PopUpField.Hide((vHeight - ViewSpeed)) },10);
+			}
+			else{
+				//表示中の画像パターンを消去する
+				if(document.getElementById("ImgNormalID")){
+					PopUpField.Div.removeChild(ImgNormal);
+				}
+				else{
+					PopUpField.Div.removeChild(ImgTalk);
+				}
+				//POPUPから要素を消去
+				PopUpField.Div.removeChild(SubmitBtn);
+				PopUpField.Div.removeChild(CloseBtn);
+				PopUpField.Div.removeChild(QuestionField);
+				//iframeのサイズを最小化
+				CommentField.style.height = "1px";
+				//ポップアップを非表示
+				PopUpField.Div.style.visibility = "hidden";
+			}
+		}
+	}
+	//待機画像クラスの定義
+    	var WaitImg = function() {
+		//Divレイヤの定義
+		this.Div = document.createElement('div'); 
+		this.Div.style.position = "absolute";
+		this.Div.style.width = 40;
+		this.Div.style.height = 40;
+		this.Div.style.backgroundColor = "#B1F9D0";
+		this.Div.style.border = "outset 2px #B1F9D0";
+		this.Div.style.borderRadius = "20px";
+		//POPUPの１つ下の階層に表示する
+		this.Div.style.zIndex = 999;
+		//ページに待機画像（Div)を組み込む
+		document.body.appendChild(this.Div);
+		this.Div.appendChild(ImgWait);
+		//画面上への表示
+		this.View = function(){
+			//表示位置の取得
+			var viewX = document.body.clientWidth - 80 + document.body.scrollLeft;
+			var viewY = document.body.clientHeight - 70 + document.body.scrollTop;
+			//表示位置の指定
+			this.Div.style.left = viewX;
+			this.Div.style.top = viewY;
+		}
+        }
+		
+	//ポップアップの表示
+	function ViewPopUp(){
+		//POPUPに要素を組み込む
+		PopUpField.Div.appendChild(ImgNormal);
+		PopUpField.Div.appendChild(SubmitBtn);
+		PopUpField.Div.appendChild(QuestionField);
+                PopUpField.Div.style.backgroundColor = "#CEF9DC";
+		//iframeのサイズを最大化
+		CommentField.style.height = "400px";
+		//ポップアップを表示
+		PopUpField.Div.style.visibility = "visible";
+		PopUpField.View(0);
+	}
+	//質問の送信
+	function SousinComent(){
+		//質問の送信
+		if(QuestionField.value){
+			//テキストエリアの改行コードを削除
+			var InputText = QuestionField.value
+			InputText = InputText.replace( /\n/g , "" ) ;
+			//質問の表示
+			var Question = new CommentCls(0,InputText);
+			//テキストエリアのクリア
+			QuestionField.value = "";
+
+if(InputText.match("こんにち")){
+
+ setTimeout(function(){
+		//回答の出力
+	　var Question = new CommentCls(1, "何の用かしら？");
+	　},800);
+
+
+}else if(InputText.match("こんばん")){
+
+ setTimeout(function(){
+		//回答の出力
+	　var Question = new CommentCls(1, "何の用かしら？");
+	　},800);
+
+
+}else if(InputText.match("おはよう")){
+
+ setTimeout(function(){
+		//回答の出力
+	　var Question = new CommentCls(1, "何の用かしら？");
+	　},800);
+
+
+}else if(InputText.match("元気.*[?|？]")){
+
+ setTimeout(function(){
+		//回答の出力
+	　var Question = new CommentCls(1, "眠たいから気にかけないで");
+	　},800);
+
+
+}else if(InputText.match("好き.*食べ物.*[?|？]")){
+
+ setTimeout(function(){
+		//回答の出力
+	　var Question = new CommentCls(1, "女ならスイーツに決まってるじゃない");
+	　},800);
+
+
+}else if(InputText.match("好き.*食べもの.*[?|？]")){
+
+ setTimeout(function(){
+		//回答の出力
+	　var Question = new CommentCls(1, "女ならスイーツに決まってるじゃない");
+	　},800);
+
+
+}else if(InputText.match("嫌い.*食べ物.*[?|？]")){
+
+ setTimeout(function(){
+		//回答の出力
+	　var Question = new CommentCls(1, "ゴーヤね。あなたは食べられる？");
+	　},800);
+
+
+}else if(InputText.match("嫌い.*食べもの.*[?|？]")){
+
+ setTimeout(function(){
+		//回答の出力
+	　var Question = new CommentCls(1, "ゴーヤね。あなたは食べられる？");
+	　},800);
+
+
+}else if(InputText.match("好き.*スポーツ.*[?|？]")){
+
+ setTimeout(function(){
+		//回答の出力
+	　var Question = new CommentCls(1, "テニスかしら。あなたも少しは運動したほうがいいわよ笑");
+	　},800);
+
+
+}else if(InputText.match("嫌い.*スポーツ.*[?|？]")){
+
+ setTimeout(function(){
+		//回答の出力
+	　var Question = new CommentCls(1, "団体競技は嫌いね");
+	　},800);
+
+
+}else if(InputText.match("スポーツ.*やって.*[?|？]")){
+
+ setTimeout(function(){
+		//回答の出力
+	　var Question = new CommentCls(1, "テニスかしら。あなたも少しは運動したほうがいいわよ笑");
+	　},800);
+
+
+}else if(InputText.match("暇.*[?|？]")){
+
+ setTimeout(function(){
+		//回答の出力
+	　var Question = new CommentCls(1, "そうね。何か面白い話をしてよ");
+	　},800);
+
+
+}else if(InputText.match("暇")){
+
+ setTimeout(function(){
+		//回答の出力
+	　var Question = new CommentCls(1, "あなたと違って私は暇じゃないわ");
+	　},800);
+
+
+}else if(InputText.match("出身.*[?|？]")){
+
+ setTimeout(function(){
+		//回答の出力
+	　var Question = new CommentCls(1, "どこだと思う？");
+	　},800);
+
+
+}else if(InputText.match("かわいい")){
+
+ setTimeout(function(){
+		//回答の出力
+	　var Question = new CommentCls(1, "よく言われるわ");
+	　},800);
+
+
+}else if(InputText.match("可愛い")){
+
+ setTimeout(function(){
+		//回答の出力
+	　var Question = new CommentCls(1, "よく言われるわ");
+	　},800);
+
+
+}else if(InputText.match("生まれ.*[?|？]")){
+
+ setTimeout(function(){
+		//回答の出力
+	　var Question = new CommentCls(1, "どこだと思う？");
+	　},800);
+
+
+}else if(InputText.match("住ん.*[?|？]")){
+
+ setTimeout(function(){
+		//回答の出力
+	　var Question = new CommentCls(1, "どこだと思う？");
+	　},800);
+
+
+}else if(InputText.match("天気")){
+
+ setTimeout(function(){
+		//回答の出力
+	　var Question = new CommentCls(1, "外見ればわかるじゃない");
+	　},800);
+
+
+}else if(InputText.match("趣味.*[?|？]")){
+
+ setTimeout(function(){
+		//回答の出力
+	　var Question = new CommentCls(1, "カフェ巡りよ。オススメのカフェ教えてよ");
+	　},800);
+
+
+}else if(InputText.match("おすすめ.*カフェ.*[?|？]")){
+
+ setTimeout(function(){
+		//回答の出力
+	　var Question = new CommentCls(1, "教えないわよ");
+	　},800);
+
+
+}else if(InputText.match("オススメ.*カフェ.*[?|？]")){
+
+ setTimeout(function(){
+		//回答の出力
+	　var Question = new CommentCls(1, "教えないわよ");
+	　},800);
+
+
+}else if(InputText.match("お勧め.*カフェ.*[?|？]")){
+
+ setTimeout(function(){
+		//回答の出力
+	　var Question = new CommentCls(1, "教えないわよ");
+	　},800);
+
+
+}else if(InputText.match("おすすめ.*店.*[?|？]")){
+
+ setTimeout(function(){
+		//回答の出力
+	　var Question = new CommentCls(1, "教えないわよ");
+	　},800);
+
+
+}else if(InputText.match("オススメ.*店*[?|？]")){
+
+ setTimeout(function(){
+		//回答の出力
+	　var Question = new CommentCls(1, "教えないわよ");
+	　},800);
+
+
+}else if(InputText.match("お勧め.*店*[?|？]")){
+
+ setTimeout(function(){
+		//回答の出力
+	　var Question = new CommentCls(1, "教えないわよ");
+	　},800);
+
+
+}else if(InputText.match("好き.*タイプ.*[?|？]")){
+
+ setTimeout(function(){
+		//回答の出力
+	　var Question = new CommentCls(1, "あなたみたいなタイプじゃなければ笑");
+	　},800);
+
+
+}else if(InputText.match("嫌い.*タイプ.*[?|？]")){
+
+ setTimeout(function(){
+		//回答の出力
+	　var Question = new CommentCls(1, "あなたが良い例ね");
+	　},800);
+
+
+}else if(InputText.match("好きな.*人.*[?|？]")){
+
+ setTimeout(function(){
+		//回答の出力
+	　var Question = new CommentCls(1, "いるけど、あなたじゃないわよ");
+	　},800);
+
+
+}else if(InputText.match("嫌い.*人.*[?|？]")){
+
+ setTimeout(function(){
+		//回答の出力
+	　var Question = new CommentCls(1, "言わないほうがいいかもね笑");
+	　},800);
+
+
+}else if(InputText.match("身長.*[?|？]")){
+
+ setTimeout(function(){
+		//回答の出力
+	　var Question = new CommentCls(1, "165くらいかな。私より身長の低い男は見下してるわ笑");
+	　},800);
+
+
+}else if(InputText.match("体重.*[?|？]")){
+
+ setTimeout(function(){
+		//回答の出力
+	　var Question = new CommentCls(1, "つまらない質問ね");
+	　},800);
+
+
+}else if(InputText.match("誕生日.*[?|？]")){
+
+ setTimeout(function(){
+		//回答の出力
+	　var Question = new CommentCls(1, "教えないわよ");
+	　},800);
+
+
+}else if(InputText.match("星座.*[?|？]")){
+
+ setTimeout(function(){
+		//回答の出力
+	　var Question = new CommentCls(1, "つまらない質問ね");
+	　},800);
+
+
+}else if(InputText.match("血液型.*[?|？]")){
+
+ setTimeout(function(){
+		//回答の出力
+	　var Question = new CommentCls(1, "そんなの聞いてどうするの？");
+	　},800);
+
+
+}else if(InputText.match("苦手.*事.*[?|？]")){ 
+
+ setTimeout(function(){
+		//回答の出力
+	　var Question = new CommentCls(1, "そんなのないわよ");
+	　},800);
+
+
+}else if(InputText.match("苦手.*こと.*[?|？]")){
+
+ setTimeout(function(){
+		//回答の出力
+	　var Question = new CommentCls(1, "そんなのないわよ");
+	　},800);
+
+
+}else if(InputText.match("得意.*事.*[?|？]")){
+
+ setTimeout(function(){
+		//回答の出力
+	　var Question = new CommentCls(1, "そんなのないわよ");
+	　},800);
+
+
+}else if(InputText.match("得意.*こと.*[?|？]")){
+
+ setTimeout(function(){
+		//回答の出力
+	　var Question = new CommentCls(1, "そんなのないわよ");
+	　},800);
+
+
+}else if(InputText.match("将来の夢.*[?|？]")){
+
+ setTimeout(function(){
+		//回答の出力
+	　var Question = new CommentCls(1, "玉の輿に乗ることね");
+	　},800);
+
+
+}else if(InputText.match("勉強.*好き[?|？]")){
+
+ setTimeout(function(){
+		//回答の出力
+	　var Question = new CommentCls(1, "好きなわけないでしょ");
+	　},800);
+
+
+}else if(InputText.match("嫌い.*事.*[?|？]")){
+
+ setTimeout(function(){
+		//回答の出力
+	　var Question = new CommentCls(1, "勉強よ");
+	　},800);
+
+
+}else if(InputText.match("嫌い.*こと.*[?|？]")){
+
+ setTimeout(function(){
+		//回答の出力
+	　var Question = new CommentCls(1, "勉強よ");
+	　},800);
+
+
+}else if(InputText.match("好き.*色.*[?|？]")){
+
+ setTimeout(function(){
+		//回答の出力
+	　var Question = new CommentCls(1, "どうでもいい質問ね");
+	　},800);
+
+
+}else if(InputText.match("お疲れ")){
+
+ setTimeout(function(){
+		//回答の出力
+	　var Question = new CommentCls(1, "何か用事でも？");
+	　},800);
+
+
+}else if(InputText.match("何.*才.*[?|？]")){
+
+ setTimeout(function(){
+		//回答の出力
+	　var Question = new CommentCls(1, "何歳でもいいでしょ？");
+	　},800);
+
+
+}else if(InputText.match("何.*歳.*[?|？]")){
+
+ setTimeout(function(){
+		//回答の出力
+	　var Question = new CommentCls(1, "何歳でもいいでしょ？");
+	　},800);
+
+
+}else if(InputText.match("好き.*ゲーム.*[?|？]")){
+
+ setTimeout(function(){
+		//回答の出力
+	　var Question = new CommentCls(1, "ゲームなんてやらないわよ");
+	　},800);
+
+
+}else if(InputText.match("食べたい.*物.*[?|？]")){
+
+ setTimeout(function(){
+		//回答の出力
+	　var Question = new CommentCls(1, "御馳走してくれるなら教えてあげる");
+	　},800);
+
+
+}else if(InputText.match("食べたい.*もの.*[?|？]")){
+
+ setTimeout(function(){
+		//回答の出力
+	　var Question = new CommentCls(1, "御馳走してくれるなら教えてあげる");
+	　},800);
+
+
+}else if(InputText.match("好き.*飲み物.*[?|？]")){
+
+ setTimeout(function(){
+		//回答の出力
+	　var Question = new CommentCls(1, "紅茶よ。");
+	　},800);
+
+
+}else if(InputText.match("好き.*飲物.*[?|？]")){
+
+ setTimeout(function(){
+		//回答の出力
+	　var Question = new CommentCls(1, "紅茶よ");
+	　},800);
+
+
+}else if(InputText.match("好き.*飲みもの.*[?|？]")){
+
+ setTimeout(function(){
+		//回答の出力
+	　var Question = new CommentCls(1, "紅茶よ");
+	　},800);
+　
+
+}else if(InputText.match("予定.*[?|？]")){
+
+ setTimeout(function(){
+		//回答の出力
+	　var Question = new CommentCls(1, "あなたみたいに暇じゃないのよ");
+	　},800);
+
+
+}else if(InputText.match("用事.*[?|？]")){
+
+ setTimeout(function(){
+		//回答の出力
+	　var Question = new CommentCls(1, "あなたみたいに暇じゃないのよ");
+	　},800);
+
+
+}else if(InputText.match("バイト.*[?|？]")){
+
+ setTimeout(function(){
+		//回答の出力
+	　var Question = new CommentCls(1, "お金に困ってないからやってないわ。あなたは何やってるの？");
+	　},800);
+　　　
+
+}else if(InputText.match("好き.*本.*[?|？]")){
+
+ setTimeout(function(){
+		//回答の出力
+	　var Question = new CommentCls(1, "時間がないから読めないわ。あなたは暇そうだから本でも読んだら？");
+	　},800);
+　　　
+
+}else if(InputText.match("好き.*映画.*[?|？]")){
+
+ setTimeout(function(){
+		//回答の出力
+	　var Question = new CommentCls(1, "興味ないわ");
+	　},800);
+
+
+}else if(InputText.match("好き.*ドラマ.*[?|？]")){
+
+ setTimeout(function(){
+		//回答の出力
+	　var Question = new CommentCls(1, "興味ないわ");
+	　},800);
+
+
+}else if(InputText.match("学校.*好き.*[?|？]")){
+
+ setTimeout(function(){
+		//回答の出力
+	　var Question = new CommentCls(1, "交友の場としてなら良いかもね");
+	　},800);
+
+
+}else if(InputText.match("学校.*嫌い.*[?|？]")){
+
+ setTimeout(function(){
+		//回答の出力
+	　var Question = new CommentCls(1, "交友の場としてなら良いかもね");
+	　},800);
+
+
+}else if(InputText.match("休み.*何.*[?|？]")){
+
+ setTimeout(function(){
+		//回答の出力
+	　var Question = new CommentCls(1, "あなたにプライベートの話はしたくないわ");
+	　},800);
+
+
+}else if(InputText.match("好き.*授業.*[?|？]")){
+
+ setTimeout(function(){
+		//回答の出力
+	　var Question = new CommentCls(1, "そんなのないわ");
+	　},800);
+
+
+}else if(InputText.match("嫌い.*授業.*[?|？]")){
+
+ setTimeout(function(){
+		//回答の出力
+	　var Question = new CommentCls(1, "全部よ");
+	　},800);
+
+
+}else if(InputText.match("しりとり")){
+
+ setTimeout(function(){
+		//回答の出力
+	　var Question = new CommentCls(1, "1人でやったら笑");
+	　},800);
+
+
+}else if(InputText.match("なんで.*[?|？]")){
+
+ setTimeout(function(){
+		//回答の出力
+	　var Question = new CommentCls(1, "そのくらい自分で考えなさいよ");
+	　},800);
+
+
+}else if(InputText.match("何で.*[?|？]")){
+
+ setTimeout(function(){
+		//回答の出力
+	　var Question = new CommentCls(1, "そのくらい自分で考えなさいよ");
+	　},800);
+
+
+}else if(InputText.match("わか.*[?|？]")){
+
+ setTimeout(function(){
+		//回答の出力
+	　var Question = new CommentCls(1, "どうかしらね？");
+	　},800);
+　　　　　　
+
+}else if(InputText.match("やっ.*[?|？]")){
+
+ setTimeout(function(){
+		//回答の出力
+	　var Question = new CommentCls(1, "どうかしらね");
+	　},800);
+
+
+}else if(InputText.match("教えて")){
+
+ setTimeout(function(){
+		//回答の出力
+	　var Question = new CommentCls(1, "なんであなたに教えないといけないの？");
+	　},800);
+
+
+}else if(InputText.match("行く.*[?|？]")){
+
+ setTimeout(function(){
+		//回答の出力
+	　var Question = new CommentCls(1,　"行かないわよ");
+	　},800);
+
+
+}else if(InputText.match("行け.*[?|？]")){
+
+ setTimeout(function(){
+		//回答の出力
+	　var Question = new CommentCls(1, "なんで行かないといけないの？");
+	　},800);
+
+
+}else if(InputText.match("行こ.*")){
+
+ setTimeout(function(){
+		//回答の出力
+	　var Question = new CommentCls(1, "嫌だわ");
+	　},800);
+
+
+}else if(InputText.match("行か.*[?|？]")){
+
+ setTimeout(function(){
+		//回答の出力
+	　var Question = new CommentCls(1, "嫌だわ");
+	　},800);
+
+
+}else if(InputText.match("行き.*[?|？]")){
+
+ setTimeout(function(){
+		//回答の出力
+	　var Question = new CommentCls(1, "行かないわ");
+	　},800);
+
+
+}else if(InputText.match("眠い")){
+
+ setTimeout(function(){
+		//回答の出力
+	　var Question = new CommentCls(1, "なら早く寝なさい");
+	　},800);
+
+
+}else if(InputText.match("ねむい")){
+
+ setTimeout(function(){
+		//回答の出力
+	　var Question = new CommentCls(1, "なら早く寝なさい");
+	　},800);
+
+
+}else if(InputText.match("疲れた")){
+
+ setTimeout(function(){
+		//回答の出力
+	　var Question = new CommentCls(1, "ならチャットはもう終わりね");
+	　},800);
+
+
+}else if(InputText.match("する[?|？]")){
+
+ setTimeout(function(){
+		//回答の出力
+	　var Question = new CommentCls(1, "答える気は無いわ");
+	　},800);
+
+
+}else if(InputText.match("思う[？|?]")){
+
+ setTimeout(function(){
+		//回答の出力
+	　var Question = new CommentCls(1, "わからないわ。そのくらい自分で考えないさい");
+	　},800);
+
+
+}else if(InputText.match("[?|？]")){
+
+ setTimeout(function(){
+		//回答の出力
+	　var Question = new CommentCls(1, "あなたと話してる暇はないわ");
+	　},800);
+
+}else{
+
+
+
+
+
+			//FormDataクラスのインスタンスを生成
+　                      var BotRequest = new FormData();
+　                      BotRequest.append('apikey','DZZYK8Q6PD983bRBcIiwtbH4UYEkG7Se');
+　                      BotRequest.append('query',InputText);
+　                      //POSTでAPIをコールする
+　                      fetch('https://api.a3rt.recruit-tech.co.jp/talk/v1/smalltalk',
+　                      { method:'post',body:BotRequest,}).then(Response => {
+　　　                  //Response.json()の応答を待って処理を行う
+　　　                  Response.json().then(Data => {
+　　　　　              //回答の出力
+　　　　　              var Question = new CommentCls(1,Data.results[0].reply);
+　　　                            })
+　                 });
+            }
+  }
+		//質問エリアにフォーカスをセット
+		QuestionField.focus();
+	}
+
+</script>
+
+
+
